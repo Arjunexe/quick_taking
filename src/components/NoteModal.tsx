@@ -108,7 +108,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
               {/* Form */}
               <form
                 onSubmit={handleSubmit}
-                className="flex-1 flex flex-col gap-4 overflow-hidden p-4 pb-6 md:p-6 md:pt-0"
+                className="flex-1 flex flex-col gap-4 overflow-hidden p-4 md:p-6 md:pt-0"
               >
                 {/* Title Input */}
                 <input
@@ -116,7 +116,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Note title..."
-                  className="glass-input text-lg font-medium w-full shrink-0"
+                  className="glass-input text-lg font-medium"
                   autoFocus
                   required
                 />
@@ -126,7 +126,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Start writing..."
-                  className="glass-input flex-1 min-h-0 w-full resize-none"
+                  className="glass-input flex-1 min-h-[200px] resize-none"
                 />
 
                 {/* Actions */}
