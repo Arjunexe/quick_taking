@@ -80,20 +80,20 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
                         onClick={onClose}
                     />
 
-                    {/* Modal Container - Flexbox centering */}
+                    {/* Modal Container - Full screen on mobile, centered on desktop */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", duration: 0.3 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 z-50 md:flex md:items-center md:justify-center md:p-4"
                     >
                         <div
-                            className="glass-card w-full max-w-2xl flex flex-col max-h-[90vh]"
+                            className="glass-card w-full h-full md:h-auto md:max-h-[90vh] md:max-w-2xl md:rounded-2xl rounded-none flex flex-col"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between p-4 md:p-6 border-b border-border md:border-none shrink-0">
                                 <h2 className="text-xl font-semibold text-gradient">
                                     {note ? "Edit Note" : "New Note"}
                                 </h2>
@@ -106,7 +106,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
                             </div>
 
                             {/* Form */}
-                            <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-4 overflow-hidden">
+                            <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-4 overflow-hidden p-4 md:p-6 md:pt-0">
                                 {/* Title Input */}
                                 <input
                                     type="text"
@@ -127,7 +127,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
                                 />
 
                                 {/* Actions */}
-                                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border shrink-0">
                                     <button
                                         type="button"
                                         onClick={onClose}

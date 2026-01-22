@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,7 +38,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <PWAInstallPrompt />
         {/* Noise Overlay */}
         <div className="noise-overlay" aria-hidden="true" />
 
