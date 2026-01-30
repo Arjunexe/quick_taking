@@ -89,7 +89,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
             className="fixed inset-0 z-50 md:flex md:items-center md:justify-center md:p-4"
           >
             <div
-              className="glass-card w-full h-full md:h-auto md:max-h-[90vh] md:max-w-2xl md:rounded-2xl rounded-none flex flex-col"
+              className="glass-card w-full h-full md:w-[calc(100%-4rem)] md:h-[calc(100%-4rem)] md:max-w-6xl md:rounded-2xl rounded-none flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
