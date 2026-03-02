@@ -2,7 +2,7 @@
 
 import { X, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { createNote, updateNote, type SerializedNote } from "@/actions/notes";
 
 interface NoteModalProps {
@@ -16,6 +16,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Populate form when editing
   useEffect(() => {
@@ -62,8 +63,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
       if (e.key === "Enter" && e.shiftKey) {
         e.preventDefault();
         if (title.trim() && !isPending) {
-          const form = document.querySelector("form");
-          form?.requestSubmit();
+          formRef.current?.requestSubmit();
         }
       }
     };
@@ -115,6 +115,7 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
 
               {/* Form */}
               <form
+                ref={formRef}
                 onSubmit={handleSubmit}
                 className="flex-1 flex flex-col gap-4 overflow-hidden p-4 md:p-6 md:pt-0"
               >
