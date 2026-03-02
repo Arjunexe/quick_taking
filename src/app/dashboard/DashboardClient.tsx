@@ -6,6 +6,7 @@ import { NoteCard } from "@/components/NoteCard";
 import { NoteModal } from "@/components/NoteModal";
 import { SearchBar } from "@/components/SearchBar";
 import { EmptyState } from "@/components/EmptyState";
+import { useToast } from "@/components/Toast";
 import { type SerializedNote } from "@/actions/notes";
 
 interface DashboardClientProps {
@@ -16,6 +17,7 @@ export function DashboardClient({ initialNotes }: DashboardClientProps) {
     const [notes, setNotes] = useState<SerializedNote[]>(initialNotes);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingNote, setEditingNote] = useState<SerializedNote | null>(null);
+    const { showToast } = useToast();
 
     const pinnedNotes = notes.filter(note => note.pinned);
     const unpinnedNotes = notes.filter(note => !note.pinned);
@@ -51,6 +53,7 @@ export function DashboardClient({ initialNotes }: DashboardClientProps) {
 
     const handleDeleteNote = (noteId: string) => {
         setNotes(prevNotes => prevNotes.filter(n => n._id !== noteId));
+        showToast("Note deleted");
     };
 
     return (
