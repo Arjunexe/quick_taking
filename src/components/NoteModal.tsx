@@ -52,20 +52,28 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
     });
   };
 
-  // Handle escape key
+  // Handle keyboard shortcuts
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+      }
+      // Shift+Enter to save
+      if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
+        if (title.trim() && !isPending) {
+          const form = document.querySelector("form");
+          form?.requestSubmit();
+        }
       }
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", handleKeyDown);
     }
 
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose, title, isPending]);
 
   return (
     <AnimatePresence>
