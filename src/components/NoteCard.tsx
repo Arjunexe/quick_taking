@@ -10,23 +10,24 @@ interface NoteCardProps {
     onEdit: (note: SerializedNote) => void;
     onDelete: (noteId: string) => void;
     index: number;
+    workspace?: "personal" | "ceo";
 }
 
-export function NoteCard({ note, onEdit, onDelete, index }: NoteCardProps) {
+export function NoteCard({ note, onEdit, onDelete, index, workspace = "personal" }: NoteCardProps) {
     const [isPinPending, startPinTransition] = useTransition();
     const [isDeletePending, startDeleteTransition] = useTransition();
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleTogglePin = () => {
         startPinTransition(async () => {
-            await togglePin(note._id);
+            await togglePin(note._id, workspace);
         });
     };
 
     const handleDelete = () => {
         setIsDeleting(true);
         startDeleteTransition(async () => {
-            const result = await deleteNote(note._id);
+            const result = await deleteNote(note._id, workspace);
             if (result.success) {
                 onDelete(note._id);
             }
@@ -90,8 +91,8 @@ export function NoteCard({ note, onEdit, onDelete, index }: NoteCardProps) {
                             }}
                             disabled={isPinPending}
                             className={`p-2 rounded-lg transition-colors ${note.pinned
-                                    ? "text-primary bg-primary/10 hover:bg-primary/20"
-                                    : "text-zinc-500 hover:text-primary hover:bg-surface-hover"
+                                ? "text-primary bg-primary/10 hover:bg-primary/20"
+                                : "text-zinc-500 hover:text-primary hover:bg-surface-hover"
                                 } ${isPinPending ? "opacity-50" : ""}`}
                             title={note.pinned ? "Unpin" : "Pin"}
                         >

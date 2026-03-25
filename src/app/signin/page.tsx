@@ -1,6 +1,8 @@
 import { signIn } from "@/auth";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { KeyRound } from "lucide-react";
 
 export default async function SignInPage() {
     const session = await auth();
@@ -60,7 +62,22 @@ export default async function SignInPage() {
                 </form>
 
                 {/* Footer */}
-                <p className="mt-8 text-xs text-zinc-500">
+                <div className="flex items-center gap-4 mt-8">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                    <span className="text-zinc-500 text-sm">or</span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                </div>
+
+                {/* CEO Button */}
+                <Link
+                    href="/ceo"
+                    className="mt-4 w-full glass-button flex items-center justify-center gap-3 py-4 hover:bg-surface-hover group transition-all duration-300"
+                >
+                    <KeyRound className="w-5 h-5 text-primary" />
+                    <span className="font-medium">CEO Access</span>
+                </Link>
+
+                <p className="mt-6 text-xs text-zinc-500">
                     By signing in, you agree to our Terms of Service
                 </p>
             </div>

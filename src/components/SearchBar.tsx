@@ -6,23 +6,24 @@ import { searchNotes, getNotes, type SerializedNote } from "@/actions/notes";
 
 interface SearchBarProps {
     onSearch: (notes: SerializedNote[]) => void;
+    workspace?: "personal" | "ceo";
 }
 
-export function SearchBar({ onSearch }: SearchBarProps) {
+export function SearchBar({ onSearch, workspace = "personal" }: SearchBarProps) {
     const [query, setQuery] = useState("");
     const [isPending, startTransition] = useTransition();
 
     const handleSearch = useCallback((searchQuery: string) => {
         startTransition(async () => {
             if (searchQuery.trim() === "") {
-                const result = await getNotes();
+                const result = await getNotes(workspace);
                 onSearch(result.notes);
             } else {
-                const result = await searchNotes(searchQuery);
+                const result = await searchNotes(searchQuery, workspace);
                 onSearch(result.notes);
             }
         });
-    }, [onSearch]);
+    }, [onSearch, workspace]);
 
     // Debounced search
     useEffect(() => {

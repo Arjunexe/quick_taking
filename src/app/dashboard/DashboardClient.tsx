@@ -11,9 +11,10 @@ import { type SerializedNote } from "@/actions/notes";
 
 interface DashboardClientProps {
     initialNotes: SerializedNote[];
+    workspace?: "personal" | "ceo";
 }
 
-export function DashboardClient({ initialNotes }: DashboardClientProps) {
+export function DashboardClient({ initialNotes, workspace = "personal" }: DashboardClientProps) {
     const [notes, setNotes] = useState<SerializedNote[]>(initialNotes);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingNote, setEditingNote] = useState<SerializedNote | null>(null);
@@ -61,7 +62,7 @@ export function DashboardClient({ initialNotes }: DashboardClientProps) {
             {/* Header */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
                 <div className="flex-1 w-full sm:max-w-md">
-                    <SearchBar onSearch={handleSearch} />
+                    <SearchBar onSearch={handleSearch} workspace={workspace} />
                 </div>
 
                 <button
@@ -92,6 +93,7 @@ export function DashboardClient({ initialNotes }: DashboardClientProps) {
                                         onEdit={handleEditNote}
                                         onDelete={handleDeleteNote}
                                         index={index}
+                                        workspace={workspace}
                                     />
                                 ))}
                             </div>
@@ -132,6 +134,7 @@ export function DashboardClient({ initialNotes }: DashboardClientProps) {
                     setEditingNote(null);
                 }}
                 onSave={handleSaveNote}
+                workspace={workspace}
             />
         </>
     );

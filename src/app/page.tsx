@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { signIn } from "@/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { ArrowRight, NotebookPen, Sparkles, Shield, Zap } from "lucide-react";
 
 export default async function HomePage() {
@@ -9,6 +10,13 @@ export default async function HomePage() {
 
     if (session) {
         redirect("/dashboard");
+    }
+
+    // Check CEO session
+    const cookieStore = await cookies();
+    const ceoCookie = cookieStore.get("ceo-session");
+    if (ceoCookie?.value === "authenticated") {
+        redirect("/ceo/dashboard");
     }
 
     return (
@@ -58,6 +66,13 @@ export default async function HomePage() {
                         className="glass-button px-8 py-4 text-lg text-zinc-300 hover:text-white transition-colors"
                     >
                         Sign In
+                    </Link>
+
+                    <Link
+                        href="/ceo"
+                        className="glass-button px-8 py-4 text-lg text-zinc-300 hover:text-white transition-colors"
+                    >
+                        CEO
                     </Link>
                 </div>
 

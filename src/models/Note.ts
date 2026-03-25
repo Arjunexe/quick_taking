@@ -4,8 +4,9 @@ export interface INote {
     _id: mongoose.Types.ObjectId;
     title: string;
     content: string;
-    userId: mongoose.Types.ObjectId;
+    userId?: mongoose.Types.ObjectId;
     pinned: boolean;
+    workspace: "personal" | "ceo";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -25,8 +26,13 @@ const NoteSchema = new Schema<INote>(
         userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: true,
+            required: false,
             index: true,
+        },
+        workspace: {
+            type: String,
+            enum: ["personal", "ceo"],
+            default: "personal",
         },
         pinned: {
             type: Boolean,
@@ -39,7 +45,7 @@ const NoteSchema = new Schema<INote>(
 );
 
 // Compound index for efficient querying
-NoteSchema.index({ userId: 1, pinned: -1, updatedAt: -1 });
+NoteSchema.index({ workspace: 1, userId: 1, pinned: -1, updatedAt: -1 });
 
 // Text index for search
 NoteSchema.index({ title: "text", content: "text" });

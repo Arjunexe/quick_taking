@@ -10,9 +10,10 @@ interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (note: SerializedNote) => void;
+  workspace?: "personal" | "ceo";
 }
 
-export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
+export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal" }: NoteModalProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -50,13 +51,13 @@ export function NoteModal({ note, isOpen, onClose, onSave }: NoteModalProps) {
 
     startTransition(async () => {
       if (note) {
-        const result = await updateNote(note._id, title, content);
+        const result = await updateNote(note._id, title, content, workspace);
         if (result.success && result.note) {
           onSave(result.note);
           onClose();
         }
       } else {
-        const result = await createNote(title, content);
+        const result = await createNote(title, content, workspace);
         if (result.success && result.note) {
           onSave(result.note);
           onClose();
