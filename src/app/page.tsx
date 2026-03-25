@@ -3,7 +3,7 @@ import { signIn } from "@/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { ArrowRight, NotebookPen, Sparkles, Shield, Zap } from "lucide-react";
+import { ArrowRight, NotebookPen, Sparkles, Shield, Zap, Users } from "lucide-react";
 
 export default async function HomePage() {
     const session = await auth();
@@ -44,43 +44,57 @@ export default async function HomePage() {
                     Beautiful design meets powerful functionality.
                 </p>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 animate-slide-up delay-200">
+                {/* Choose Your Space */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl animate-slide-up delay-200">
+                    {/* Personal Mode */}
                     <form
                         action={async () => {
                             "use server";
                             await signIn("google", { redirectTo: "/dashboard" });
                         }}
+                        className="group"
                     >
                         <button
                             type="submit"
-                            className="glass-button bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 text-lg font-medium flex items-center gap-2 hover:scale-105 transition-transform"
+                            className="glass-card w-full text-left hover:scale-[1.03] transition-transform duration-300 cursor-pointer"
                         >
-                            Get Started
-                            <ArrowRight className="w-5 h-5" />
+                            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
+                                <NotebookPen className="w-6 h-6 text-primary" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white mb-1">Personal</h3>
+                            <p className="text-sm text-zinc-400 mb-4">
+                                Your private notes, signed in with Google.
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+                                Sign in with Google
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
                         </button>
                     </form>
 
-                    <Link
-                        href="/signin"
-                        className="glass-button px-8 py-4 text-lg text-zinc-300 hover:text-white transition-colors"
-                    >
-                        Sign In
-                    </Link>
-
-                    <Link
-                        href="/ceo"
-                        className="glass-button px-8 py-4 text-lg text-zinc-300 hover:text-white transition-colors"
-                    >
-                        CEO
+                    {/* CEO Mode */}
+                    <Link href="/ceo" className="group">
+                        <div className="glass-card w-full text-left hover:scale-[1.03] transition-transform duration-300 h-full">
+                            <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center mb-4">
+                                <Users className="w-6 h-6 text-secondary" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-white mb-1">CEO</h3>
+                            <p className="text-sm text-zinc-400 mb-4">
+                                Shared workspace, access with a PIN.
+                            </p>
+                            <span className="inline-flex items-center gap-2 text-sm font-medium text-secondary">
+                                Enter PIN
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </span>
+                        </div>
                     </Link>
                 </div>
 
                 {/* Features Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-20 w-full max-w-4xl animate-slide-up delay-300">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 w-full max-w-4xl animate-slide-up delay-300">
                     <div className="glass-card text-left">
                         <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
-                            <NotebookPen className="w-6 h-6 text-primary" />
+                            <Sparkles className="w-6 h-6 text-primary" />
                         </div>
                         <h3 className="text-lg font-semibold text-white mb-2">Easy Capture</h3>
                         <p className="text-sm text-zinc-400">

@@ -147,7 +147,50 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Start writing..."
+                  onKeyDown={(e) => {
+                    const textarea = e.currentTarget;
+                    const { selectionStart } = textarea;
+                    const beforeCursor = content.slice(0, selectionStart);
+                    const afterCursor = content.slice(selectionStart);
+
+                    // '\' at start of line → insert bullet
+                    if (e.key === "\\") {
+                      const lineStart = beforeCursor.lastIndexOf("\n") + 1;
+                      const currentLine = beforeCursor.slice(lineStart);
+                      if (currentLine.trim() === "") {
+                        e.preventDefault();
+                        const newContent = beforeCursor + "• " + afterCursor;
+                        setContent(newContent);
+                        requestAnimationFrame(() => {
+                          textarea.selectionStart = textarea.selectionEnd = selectionStart + 2;
+                        });
+                      }
+                    }
+
+                    // Enter after a bullet line → auto-continue bullet
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      const lineStart = beforeCursor.lastIndexOf("\n") + 1;
+                      const currentLine = beforeCursor.slice(lineStart);
+                      if (currentLine.startsWith("• ") && currentLine.trim() !== "•") {
+                        e.preventDefault();
+                        const newContent = beforeCursor + "\n• " + afterCursor;
+                        setContent(newContent);
+                        requestAnimationFrame(() => {
+                          textarea.selectionStart = textarea.selectionEnd = selectionStart + 3;
+                        });
+                      }
+                      // Empty bullet line → remove it on Enter
+                      if (currentLine.trim() === "•") {
+                        e.preventDefault();
+                        const newContent = content.slice(0, lineStart) + afterCursor;
+                        setContent(newContent);
+                        requestAnimationFrame(() => {
+                          textarea.selectionStart = textarea.selectionEnd = lineStart;
+                        });
+                      }
+                    }
+                  }}
+                  placeholder="Start writing... (press \ for bullet)"
                   className="glass-input flex-1 min-h-[200px] resize-none"
                 />
 
