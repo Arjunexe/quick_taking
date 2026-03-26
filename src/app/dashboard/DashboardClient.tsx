@@ -117,6 +117,7 @@ export function DashboardClient({ initialNotes, workspace = "personal" }: Dashbo
                                         onEdit={handleEditNote}
                                         onDelete={handleDeleteNote}
                                         index={index}
+                                        workspace={workspace}
                                     />
                                 ))}
                             </div>

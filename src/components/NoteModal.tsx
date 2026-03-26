@@ -18,6 +18,25 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const [showDiscardPrompt, setShowDiscardPrompt] = useState(false);
+
+  // Track if there are unsaved changes
+  const hasUnsavedChanges = note
+    ? title !== note.title || content !== note.content
+    : title.trim() !== "" || content.trim() !== "";
+
+  const handleClose = () => {
+    if (hasUnsavedChanges) {
+      setShowDiscardPrompt(true);
+    } else {
+      onClose();
+    }
+  };
+
+  const handleDiscard = () => {
+    setShowDiscardPrompt(false);
+    onClose();
+  };
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -70,7 +89,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        handleClose();
       }
       // Shift+Enter to save
       if (e.key === "Enter" && e.shiftKey) {
@@ -86,7 +105,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
     }
 
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose, title, isPending]);
+  }, [isOpen, handleClose, title, isPending]);
 
   return (
     <AnimatePresence>
@@ -94,15 +113,17 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
         <>
           {/* Backdrop */}
           <motion.div
+            key="modal-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* Modal Container - Full screen on mobile, centered on desktop */}
           <motion.div
+            key="modal-content"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -119,7 +140,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                   {note ? "Edit Note" : "New Note"}
                 </h2>
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-surface-hover transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -198,7 +219,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-border shrink-0">
                   <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="glass-button text-zinc-400 hover:text-white"
                   >
                     Cancel
@@ -213,6 +234,49 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                   </button>
                 </div>
               </form>
+            </div>
+          </motion.div>
+        </>
+      )}
+
+      {/* Discard Changes Dialog */}
+      {showDiscardPrompt && (
+        <>
+          <motion.div
+            key="discard-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60]"
+            onClick={() => setShowDiscardPrompt(false)}
+          />
+          <motion.div
+            key="discard-content"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", duration: 0.25 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          >
+            <div className="glass-card max-w-sm w-full text-center" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-lg font-semibold text-white mb-2">Discard changes?</h3>
+              <p className="text-sm text-zinc-400 mb-6">
+                You have unsaved changes that will be lost.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDiscardPrompt(false)}
+                  className="flex-1 glass-button text-zinc-300 hover:text-white"
+                >
+                  Keep editing
+                </button>
+                <button
+                  onClick={handleDiscard}
+                  className="flex-1 glass-button bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300"
+                >
+                  Discard
+                </button>
+              </div>
             </div>
           </motion.div>
         </>
