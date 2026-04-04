@@ -4,6 +4,7 @@ import { X, Save, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { createNote, updateNote, type SerializedNote } from "@/actions/notes";
+import { ChecklistEditor } from "@/components/ChecklistEditor";
 
 interface NoteModalProps {
   note: SerializedNote | null;
@@ -72,32 +73,34 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   }, [note, isOpen]);
 
   // Auto-save with debounce
-  const performAutoSave = useCallback((currentTitle: string, currentContent: string, noteId: string | null) => {
+  const performAutoSave = useCallback((currentTitle: string, currentContent: string, noteId: string | null, showIndicator = false) => {
     if (!currentTitle.trim()) return;
     if (currentTitle === lastSavedTitle.current && currentContent === lastSavedContent.current) return;
 
-    setSaveStatus("saving");
+    if (showIndicator) setSaveStatus("saving");
     startTransition(async () => {
       if (noteId) {
-        // Update existing note
         const result = await updateNote(noteId, currentTitle, currentContent, workspace);
         if (result.success && result.note) {
           lastSavedTitle.current = currentTitle;
           lastSavedContent.current = currentContent;
           onSave(result.note);
-          setSaveStatus("saved");
-          setTimeout(() => setSaveStatus("idle"), 2000);
+          if (showIndicator) {
+            setSaveStatus("saved");
+            setTimeout(() => setSaveStatus("idle"), 2000);
+          }
         }
       } else {
-        // Create new note
         const result = await createNote(currentTitle, currentContent, workspace);
         if (result.success && result.note) {
           setCurrentNoteId(result.note._id);
           lastSavedTitle.current = currentTitle;
           lastSavedContent.current = currentContent;
           onSave(result.note);
-          setSaveStatus("saved");
-          setTimeout(() => setSaveStatus("idle"), 2000);
+          if (showIndicator) {
+            setSaveStatus("saved");
+            setTimeout(() => setSaveStatus("idle"), 2000);
+          }
         }
       }
     });
@@ -122,9 +125,8 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    // Cancel any pending auto-save and save immediately
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
-    performAutoSave(title, content, currentNoteId);
+    performAutoSave(title, content, currentNoteId, true);
   };
 
   // Handle keyboard shortcuts
@@ -235,55 +237,12 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                   required
                 />
 
-                {/* Content Textarea */}
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onKeyDown={(e) => {
-                    const textarea = e.currentTarget;
-                    const { selectionStart } = textarea;
-                    const beforeCursor = content.slice(0, selectionStart);
-                    const afterCursor = content.slice(selectionStart);
-
-                    // '\' at start of line → insert bullet
-                    if (e.key === "\\") {
-                      const lineStart = beforeCursor.lastIndexOf("\n") + 1;
-                      const currentLine = beforeCursor.slice(lineStart);
-                      if (currentLine.trim() === "") {
-                        e.preventDefault();
-                        const newContent = beforeCursor + "• " + afterCursor;
-                        setContent(newContent);
-                        requestAnimationFrame(() => {
-                          textarea.selectionStart = textarea.selectionEnd = selectionStart + 2;
-                        });
-                      }
-                    }
-
-                    // Enter after a bullet line → auto-continue bullet
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      const lineStart = beforeCursor.lastIndexOf("\n") + 1;
-                      const currentLine = beforeCursor.slice(lineStart);
-                      if (currentLine.startsWith("• ") && currentLine.trim() !== "•") {
-                        e.preventDefault();
-                        const newContent = beforeCursor + "\n• " + afterCursor;
-                        setContent(newContent);
-                        requestAnimationFrame(() => {
-                          textarea.selectionStart = textarea.selectionEnd = selectionStart + 3;
-                        });
-                      }
-                      // Empty bullet line → remove it on Enter
-                      if (currentLine.trim() === "•") {
-                        e.preventDefault();
-                        const newContent = content.slice(0, lineStart) + afterCursor;
-                        setContent(newContent);
-                        requestAnimationFrame(() => {
-                          textarea.selectionStart = textarea.selectionEnd = lineStart;
-                        });
-                      }
-                    }
-                  }}
-                  placeholder="Start writing... (press \ for bullet)"
-                  className="glass-input flex-1 min-h-[200px] resize-none"
+                {/* Content Editor */}
+                <ChecklistEditor
+                  content={content}
+                  onChange={setContent}
+                  placeholder="Start writing... (press \ for bullet, ] for checkbox)"
+                  className="glass-input flex-1 min-h-[200px]"
                 />
 
                 {/* Actions */}
