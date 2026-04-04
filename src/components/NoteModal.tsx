@@ -1,8 +1,8 @@
 "use client";
 
-import { X, Save } from "lucide-react";
+import { X, Save, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { createNote, updateNote, type SerializedNote } from "@/actions/notes";
 
 interface NoteModalProps {
@@ -19,11 +19,14 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const [showDiscardPrompt, setShowDiscardPrompt] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
+  const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedTitle = useRef("");
+  const lastSavedContent = useRef("");
 
   // Track if there are unsaved changes
-  const hasUnsavedChanges = note
-    ? title !== note.title || content !== note.content
-    : title.trim() !== "" || content.trim() !== "";
+  const hasUnsavedChanges = title !== lastSavedTitle.current || content !== lastSavedContent.current;
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
@@ -55,32 +58,73 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
     if (note) {
       setTitle(note.title);
       setContent(note.content);
+      setCurrentNoteId(note._id);
+      lastSavedTitle.current = note.title;
+      lastSavedContent.current = note.content;
     } else {
       setTitle("");
       setContent("");
+      setCurrentNoteId(null);
+      lastSavedTitle.current = "";
+      lastSavedContent.current = "";
     }
+    setSaveStatus("idle");
   }, [note, isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-save with debounce
+  const performAutoSave = useCallback((currentTitle: string, currentContent: string, noteId: string | null) => {
+    if (!currentTitle.trim()) return;
+    if (currentTitle === lastSavedTitle.current && currentContent === lastSavedContent.current) return;
 
-    if (!title.trim()) {
-      return;
-    }
-
+    setSaveStatus("saving");
     startTransition(async () => {
-      if (note) {
-        const result = await updateNote(note._id, title, content, workspace);
+      if (noteId) {
+        // Update existing note
+        const result = await updateNote(noteId, currentTitle, currentContent, workspace);
         if (result.success && result.note) {
+          lastSavedTitle.current = currentTitle;
+          lastSavedContent.current = currentContent;
           onSave(result.note);
+          setSaveStatus("saved");
+          setTimeout(() => setSaveStatus("idle"), 2000);
         }
       } else {
-        const result = await createNote(title, content, workspace);
+        // Create new note
+        const result = await createNote(currentTitle, currentContent, workspace);
         if (result.success && result.note) {
+          setCurrentNoteId(result.note._id);
+          lastSavedTitle.current = currentTitle;
+          lastSavedContent.current = currentContent;
           onSave(result.note);
+          setSaveStatus("saved");
+          setTimeout(() => setSaveStatus("idle"), 2000);
         }
       }
     });
+  }, [workspace, onSave, startTransition]);
+
+  // Debounced auto-save trigger
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!title.trim()) return;
+    if (title === lastSavedTitle.current && content === lastSavedContent.current) return;
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      performAutoSave(title, content, currentNoteId);
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [title, content, isOpen, currentNoteId, performAutoSave]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    // Cancel any pending auto-save and save immediately
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    performAutoSave(title, content, currentNoteId);
   };
 
   // Handle keyboard shortcuts
@@ -134,9 +178,38 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 md:p-6 border-b border-border md:border-none shrink-0">
-                <h2 className="text-xl font-semibold text-gradient">
-                  {note ? "Edit Note" : "New Note"}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold text-gradient">
+                    {note || currentNoteId ? "Edit Note" : "New Note"}
+                  </h2>
+                  {/* Auto-save status */}
+                  <AnimatePresence mode="wait">
+                    {saveStatus === "saving" && (
+                      <motion.span
+                        key="saving"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        className="flex items-center gap-1.5 text-xs text-zinc-500"
+                      >
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Saving...
+                      </motion.span>
+                    )}
+                    {saveStatus === "saved" && (
+                      <motion.span
+                        key="saved"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        className="flex items-center gap-1.5 text-xs text-emerald-400"
+                      >
+                        <Check className="w-3 h-3" />
+                        Saved
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <button
                   onClick={handleClose}
                   className="p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-surface-hover transition-colors"
