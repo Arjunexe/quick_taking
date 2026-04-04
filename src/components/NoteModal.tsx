@@ -73,13 +73,11 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
         const result = await updateNote(note._id, title, content, workspace);
         if (result.success && result.note) {
           onSave(result.note);
-          onClose();
         }
       } else {
         const result = await createNote(title, content, workspace);
         if (result.success && result.note) {
           onSave(result.note);
-          onClose();
         }
       }
     });
