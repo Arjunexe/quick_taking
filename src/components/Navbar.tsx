@@ -1,7 +1,7 @@
 import { signOut } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, NotebookPen } from "lucide-react";
+import { LogOut, NotebookPen, Users } from "lucide-react";
 
 interface NavbarProps {
     user: {
@@ -39,6 +39,16 @@ export function Navbar({ user }: NavbarProps) {
                             )}
                             <span className="text-sm text-zinc-300">{user.name}</span>
                         </div>
+
+                        {/* Switch to CEO */}
+                        <Link
+                            href="/ceo"
+                            className="glass-button flex items-center gap-2 text-sm text-zinc-400 hover:text-secondary transition-colors"
+                            title="Switch to CEO mode"
+                        >
+                            <Users className="w-4 h-4" />
+                            <span className="hidden sm:inline">CEO</span>
+                        </Link>
 
                         {/* Sign Out Button */}
                         <form

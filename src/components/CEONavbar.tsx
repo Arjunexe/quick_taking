@@ -24,6 +24,16 @@ export async function CEONavbar() {
                             <span className="text-sm font-medium text-primary">CEO</span>
                         </div>
 
+                        {/* Switch to Personal */}
+                        <Link
+                            href="/signin"
+                            className="glass-button flex items-center gap-2 text-sm text-zinc-400 hover:text-primary transition-colors"
+                            title="Switch to Personal mode"
+                        >
+                            <NotebookPen className="w-4 h-4" />
+                            <span className="hidden sm:inline">Personal</span>
+                        </Link>
+
                         {/* Sign Out Button */}
                         <form
                             action={async () => {
