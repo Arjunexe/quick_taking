@@ -42,7 +42,7 @@ export function Navbar({ user }: NavbarProps) {
 
                         {/* Switch to CEO */}
                         <Link
-                            href="/ceo"
+                            href="/ceo/dashboard"
                             className="glass-button flex items-center gap-2 text-sm text-zinc-400 hover:text-secondary transition-colors"
                             title="Switch to CEO mode"
                         >

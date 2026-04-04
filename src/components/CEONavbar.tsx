@@ -26,7 +26,7 @@ export async function CEONavbar() {
 
                         {/* Switch to Personal */}
                         <Link
-                            href="/signin"
+                            href="/dashboard"
                             className="glass-button flex items-center gap-2 text-sm text-zinc-400 hover:text-primary transition-colors"
                             title="Switch to Personal mode"
                         >
