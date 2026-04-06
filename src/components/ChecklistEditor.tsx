@@ -253,29 +253,50 @@ export function ChecklistEditor({ content, onChange, placeholder, className }: C
                 •
               </span>
             )}
-            <input
-              ref={(el) => {
-                inputRefs.current[index] = el;
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                // Simulate Enter key for mobile keyboards that submit the form
+                // instead of firing a keydown event
+                const input = inputRefs.current[index];
+                if (input) {
+                  const fakeEvent = {
+                    key: "Enter",
+                    shiftKey: false,
+                    preventDefault: () => {},
+                    currentTarget: input,
+                  } as React.KeyboardEvent<HTMLInputElement>;
+                  handleKeyDown(index, fakeEvent);
+                }
               }}
-              type="text"
-              value={text}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onPaste={(e) => handlePaste(index, e)}
-              className={`flex-1 bg-transparent outline-none leading-7 ${
-                checked
-                  ? "line-through text-zinc-600"
-                  : cb
-                    ? "text-zinc-200"
-                    : bullet
-                      ? "text-zinc-300"
-                      : isHeader
-                        ? "font-semibold text-zinc-200"
-                        : "text-zinc-300"
-              }`}
-              placeholder={index === 0 && lines.length === 1 ? placeholder : ""}
+              className="flex-1 min-w-0"
               autoComplete="off"
-            />
+            >
+              <input
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
+                type="text"
+                value={text}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={(e) => handlePaste(index, e)}
+                enterKeyHint="enter"
+                className={`w-full bg-transparent outline-none leading-7 ${
+                  checked
+                    ? "line-through text-zinc-600"
+                    : cb
+                      ? "text-zinc-200"
+                      : bullet
+                        ? "text-zinc-300"
+                        : isHeader
+                          ? "font-semibold text-zinc-200"
+                          : "text-zinc-300"
+                }`}
+                placeholder={index === 0 && lines.length === 1 ? placeholder : ""}
+                autoComplete="off"
+              />
+            </form>
           </div>
         );
       })}

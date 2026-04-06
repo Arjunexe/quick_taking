@@ -18,7 +18,6 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPending, startTransition] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
   const [showDiscardPrompt, setShowDiscardPrompt] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
@@ -122,8 +121,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
     };
   }, [title, content, isOpen, currentNoteId, performAutoSave]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!title.trim()) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     performAutoSave(title, content, currentNoteId, true);
@@ -139,7 +137,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
       if (e.key === "Enter" && e.shiftKey) {
         e.preventDefault();
         if (title.trim() && !isPending) {
-          formRef.current?.requestSubmit();
+          handleSubmit();
         }
       }
     };
@@ -221,9 +219,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
               </div>
 
               {/* Form */}
-              <form
-                ref={formRef}
-                onSubmit={handleSubmit}
+              <div
                 className="flex-1 flex flex-col gap-4 overflow-hidden p-4 md:p-6 md:pt-0"
               >
                 {/* Title Input */}
@@ -255,7 +251,8 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                     Cancel
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     disabled={isPending || !title.trim()}
                     className="glass-button bg-gradient-to-r from-primary to-secondary text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -263,7 +260,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                     {isPending ? "Saving..." : "Save"}
                   </button>
                 </div>
-              </form>
+              </div>
             </div>
           </motion.div>
         </>
