@@ -18,7 +18,7 @@ const getPrefix = (l: string) =>
 
 export function ChecklistEditor({ content, onChange, placeholder, className }: ChecklistEditorProps) {
   const lines = content === "" ? [""] : content.split("\n");
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const pendingFocus = useRef<{ line: number; pos: number } | null>(null);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export function ChecklistEditor({ content, onChange, placeholder, className }: C
   );
 
   const handleKeyDown = useCallback(
-    (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    (index: number, e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       const line = lines[index];
       const input = e.currentTarget;
       const pos = input.selectionStart || 0;
@@ -265,24 +265,34 @@ export function ChecklistEditor({ content, onChange, placeholder, className }: C
                     shiftKey: false,
                     preventDefault: () => {},
                     currentTarget: input,
-                  } as React.KeyboardEvent<HTMLInputElement>;
+                  } as React.KeyboardEvent<HTMLTextAreaElement>;
                   handleKeyDown(index, fakeEvent);
                 }
               }}
               className="flex-1 min-w-0"
               autoComplete="off"
             >
-              <input
+              <textarea
                 ref={(el) => {
                   inputRefs.current[index] = el;
+                  // Auto-resize on mount
+                  if (el) {
+                    el.style.height = 'auto';
+                    el.style.height = el.scrollHeight + 'px';
+                  }
                 }}
-                type="text"
                 value={text}
-                onChange={(e) => handleChange(index, e.target.value)}
+                onChange={(e) => {
+                  handleChange(index, e.target.value);
+                  // Auto-resize on content change
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={(e) => handlePaste(index, e)}
                 enterKeyHint="enter"
-                className={`w-full bg-transparent outline-none leading-7 ${
+                rows={1}
+                className={`w-full bg-transparent outline-none leading-7 resize-none overflow-hidden block ${
                   checked
                     ? "line-through text-zinc-600"
                     : cb
