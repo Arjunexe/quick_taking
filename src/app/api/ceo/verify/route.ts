@@ -20,6 +20,13 @@ export async function POST(req: NextRequest) {
             maxAge: 60 * 60 * 24 * 30, // 30 days
             path: "/",
         });
+        cookieStore.set("last-mode", "ceo", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+            path: "/",
+        });
 
         return NextResponse.json({ success: true });
     } catch {

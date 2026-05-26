@@ -13,6 +13,29 @@ export default auth((req) => {
         if (ceoCookie?.value !== "authenticated") {
             return NextResponse.redirect(new URL("/ceo", req.url));
         }
+        // Remember last active mode
+        const response = NextResponse.next();
+        response.cookies.set("last-mode", "ceo", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 365,
+            path: "/",
+        });
+        return response;
+    }
+
+    // Personal dashboard — remember mode
+    if (req.nextUrl.pathname.startsWith("/dashboard")) {
+        const response = NextResponse.next();
+        response.cookies.set("last-mode", "personal", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 60 * 60 * 24 * 365,
+            path: "/",
+        });
+        return response;
     }
 
     return NextResponse.next();

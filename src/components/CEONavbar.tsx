@@ -40,6 +40,7 @@ export async function CEONavbar() {
                                 "use server";
                                 const cookieStore = await cookies();
                                 cookieStore.delete("ceo-session");
+                                cookieStore.delete("last-mode");
                                 redirect("/");
                             }}
                         >

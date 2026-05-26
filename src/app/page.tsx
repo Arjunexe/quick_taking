@@ -8,13 +8,22 @@ import { ArrowRight, NotebookPen, Sparkles, Shield, Zap, Users } from "lucide-re
 export default async function HomePage() {
     const session = await auth();
 
+    // Check last active mode first
+    const cookieStore = await cookies();
+    const lastMode = cookieStore.get("last-mode")?.value;
+    const ceoCookie = cookieStore.get("ceo-session");
+
+    // If user was last in CEO mode and session is still valid, go there
+    if (lastMode === "ceo" && ceoCookie?.value === "authenticated") {
+        redirect("/ceo/dashboard");
+    }
+
+    // If signed in with Google, go to personal dashboard
     if (session) {
         redirect("/dashboard");
     }
 
-    // Check CEO session
-    const cookieStore = await cookies();
-    const ceoCookie = cookieStore.get("ceo-session");
+    // If CEO session exists (but no last-mode set), still redirect
     if (ceoCookie?.value === "authenticated") {
         redirect("/ceo/dashboard");
     }

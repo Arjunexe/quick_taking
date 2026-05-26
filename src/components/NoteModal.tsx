@@ -170,14 +170,14 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.3 }}
-            className="fixed inset-0 z-50 md:flex md:items-center md:justify-center md:p-4"
+            className="fixed inset-0 z-50 md:flex md:items-center md:justify-center"
           >
             <div
-              className="glass-card w-full h-full md:w-[calc(100%-4rem)] md:h-[calc(100%-4rem)] md:max-w-6xl md:rounded-2xl rounded-none flex flex-col"
+              className="glass-card w-full h-full md:w-[98vw] md:h-[98vh] md:rounded-2xl rounded-none flex flex-col md:!p-0"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 md:p-6 border-b border-border md:border-none shrink-0">
+              <div className="flex items-center justify-between p-4 md:px-5 md:py-3 border-b border-border md:border-none shrink-0">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-semibold text-gradient">
                     {note || currentNoteId ? "Edit Note" : "New Note"}
@@ -220,7 +220,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
 
               {/* Form */}
               <div
-                className="flex-1 flex flex-col gap-4 overflow-hidden p-4 md:p-6 md:pt-0"
+                className="flex-1 flex flex-col gap-3 overflow-hidden p-4 md:px-5 md:pb-3 md:pt-0"
               >
                 {/* Title Input */}
                 <input
@@ -242,7 +242,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                 />
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border shrink-0">
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-border shrink-0">
                   <button
                     type="button"
                     onClick={handleClose}
@@ -257,7 +257,7 @@ export function NoteModal({ note, isOpen, onClose, onSave, workspace = "personal
                     className="glass-button bg-gradient-to-r from-primary to-secondary text-white flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="w-4 h-4" />
-                    {isPending ? "Saving..." : "Save"}
+                    {saveStatus === "saving" ? "Saving..." : "Save"}
                   </button>
                 </div>
               </div>
